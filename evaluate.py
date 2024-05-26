@@ -1,5 +1,10 @@
 import pandas as pd
-valid = pd.read_csv("valid.csv")
+import os
+import zipfile
+
+with zipfile.ZipFile("dataset_cleaned.zip", 'r') as zip_ref:
+    zip_ref.extractall("dataset_cleaned_extracted")
+valid = pd.read_csv(os.path.join("dataset_cleaned_extracted","valid.csv"))
 
 x_columns = ['Male', 'GeneralHealth', 'PhysicalHealthDays', 'MentalHealthDays',
        'PhysicalActivities', 'SleepHours', 'RemovedTeeth',

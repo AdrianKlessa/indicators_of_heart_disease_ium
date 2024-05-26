@@ -1,0 +1,64 @@
+name: CML
+on:
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: 'Verbosity level'
+        required: true
+        default: '2'
+      epochs:
+        description: 'Number of epochs to train for'
+        required: true
+        default: '11'
+      learning_rate:
+        description: 'Model learning rate'
+        required: true
+        default: '0.001'
+      patience:
+        description: 'Patience for the early stopping callback'
+        required: true
+        default: '3'
+jobs:
+  train:
+    name: Model training
+    runs-on: python:3
+    steps:
+      - uses: actions/checkout@v3
+      - name: Train model
+        run: |
+          wget https://git.wmi.amu.edu.pl/s452487/ium_452487/raw/branch/main/dataset_cleaned.zip
+          pip install -r requirements.txt
+          python train.py
+      - uses: actions/upload-artifact@v2
+        with:
+          name: model_unevaluated
+          path: model.keras
+  evaluate:
+    name: Model evaluation
+    needs: train
+    runs-on: python:3
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: model-artifact
+      - name: Evaluate model
+        run: |
+          wget https://git.wmi.amu.edu.pl/s452487/ium_452487/raw/branch/main/dataset_cleaned.zip
+          pip install -r requirements.txt
+          python evaluate.py
+      - name: Archive evaluation results
+        uses: actions/upload-artifact@v2
+        with:
+          name: model-metrics
+          path: metrics.json
+  archive_model:
+    name: Model archival
+    needs: evaluate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archive model
+        uses: actions/upload-artifact@v2
+        with:
+          name: model_final
+          path: model.keras
