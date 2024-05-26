@@ -35,7 +35,7 @@ train.info()
 
 import os
 
-env_var_list = ["INPUT_verbose", "INPUT_epochs", "INPUT_learning_rate", "INPUT_patience"]
+env_var_list = ["INPUT_VERBOSE", "INPUT_EPOCHS", "INPUT_LEARNING_RATE", "INPUT_PATIENCE"]
 
 if not all(env_var in os.environ for env_var in env_var_list):
     print("Nie znaleziono parametrów do treningu w zmiennych środowiskowych")
@@ -44,10 +44,10 @@ if not all(env_var in os.environ for env_var in env_var_list):
     parameter_learning_rate = 0.001
     parameter_verbose = 2
 else:
-    parameter_epochs = int(os.environ.get('INPUT_epochs'))
-    parameter_patience = int(os.environ.get('INPUT_patience'))
-    parameter_learning_rate = float(os.environ.get('INPUT_learning_rate'))
-    parameter_verbose = int(os.environ.get('INPUT_verbose'))
+    parameter_epochs = int(os.environ.get('INPUT_EPOCHS'))
+    parameter_patience = int(os.environ.get('INPUT_PATIENCE'))
+    parameter_learning_rate = float(os.environ.get('INPUT_LEARNING_RATE'))
+    parameter_verbose = int(os.environ.get('INPUT_VERBOSE'))
 
 import tensorflow as tf
 from tensorflow import keras
