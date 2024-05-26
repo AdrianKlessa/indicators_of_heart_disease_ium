@@ -21,9 +21,13 @@ on:
 jobs:
   train:
     name: Model training
-    runs-on: python:3
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - name: Train model
         run: |
           wget https://git.wmi.amu.edu.pl/s452487/ium_452487/raw/branch/main/dataset_cleaned.zip
@@ -36,9 +40,13 @@ jobs:
   evaluate:
     name: Model evaluation
     needs: train
-    runs-on: python:3
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - uses: actions/download-artifact@v2
         with:
           name: model-artifact
