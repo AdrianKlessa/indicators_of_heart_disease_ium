@@ -32,11 +32,11 @@ jobs:
         run: |
           wget https://git.wmi.amu.edu.pl/s452487/ium_452487/raw/branch/main/dataset_cleaned.zip
           pip install -r requirements.txt
-          INPUT_VERBOSE=${{ github.event.inputs.verbose }}
-          INPUT_EPOCHS=${{ github.event.inputs.epochs }}
-          INPUT_LEARNING_RATE=${{ github.event.inputs.learning_rate }}
-          INPUT_PATIENCE=${{ github.event.inputs.patience }}
-          python train.py
+          python train.py \
+            --verbose ${{ github.event.inputs.verbose }} \
+            --epochs ${{ github.event.inputs.epochs }} \
+            --learning_rate ${{ github.event.inputs.learning_rate }} \
+            --patience ${{ github.event.inputs.patience }}
       - uses: actions/upload-artifact@v2
         with:
           name: model_unevaluated

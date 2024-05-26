@@ -33,21 +33,20 @@ test_y = test[y_column]
 
 train.info()
 
-import os
+import argparse
 
-env_var_list = ["INPUT_VERBOSE", "INPUT_EPOCHS", "INPUT_LEARNING_RATE", "INPUT_PATIENCE"]
+parser = argparse.ArgumentParser()
+parser.add_argument('--verbose', type=int, default=2, help='Verbosity level')
+parser.add_argument('--epochs', type=int, default=11, help='Number of epochs to train for')
+parser.add_argument('--learning_rate', type=float, default=0.001, help='Model learning rate')
+parser.add_argument('--patience', type=int, default=3, help='Patience for the early stopping callback')
 
-if not all(env_var in os.environ for env_var in env_var_list):
-    print("Nie znaleziono parametrów do treningu w zmiennych środowiskowych")
-    parameter_epochs = 11
-    parameter_patience = 3
-    parameter_learning_rate = 0.001
-    parameter_verbose = 2
-else:
-    parameter_epochs = int(os.environ.get('INPUT_EPOCHS'))
-    parameter_patience = int(os.environ.get('INPUT_PATIENCE'))
-    parameter_learning_rate = float(os.environ.get('INPUT_LEARNING_RATE'))
-    parameter_verbose = int(os.environ.get('INPUT_VERBOSE'))
+
+args = parser.parse_args()
+parameter_epochs = args.epochs
+parameter_patience = args.patience
+parameter_learning_rate = args.learning_rate
+parameter_verbose = args.verbose
 
 import tensorflow as tf
 from tensorflow import keras
