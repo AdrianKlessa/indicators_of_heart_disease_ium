@@ -1,0 +1,22 @@
+pipeline {
+    agent { dockerfile true }
+    stages {
+        stage('Dataset download and stats') {
+            steps {
+                sh "export KAGGLE_CONFIG_DIR='${env.WORKSPACE}/kaggle_config/'"
+                sh "chmod +x -R ${env.WORKSPACE}"
+                sh './dataset_download_and_run.sh'
+            }
+        }
+
+      stage('archiveArtifacts') {
+         steps {
+            echo "Saving artifacts..."
+            archiveArtifacts 'test.csv'
+            archiveArtifacts 'train.csv'
+            archiveArtifacts 'valid.csv'
+            archiveArtifacts 'extracted_dataset/2022/processed.csv'
+         }
+      }
+    }
+}

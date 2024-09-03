@@ -1,0 +1,28 @@
+pipeline {
+    agent { dockerfile true }
+    options {
+        copyArtifactPermission('*');
+    }
+    parameters {
+        string(name: 'training_parameters', defaultValue: '{"epochs":11, "verbose":2, "learning_rate": 0.001, "patience": 3}', description: 'Parameters for training the model')
+    }
+    triggers {
+        upstream(upstreamProjects: "create-dataset", threshold: hudson.model.Result.SUCCESS)
+    }
+    stages {
+        stage('Train model') {
+            steps {
+                copyArtifacts filter: '*', fingerprintArtifacts: true, projectName: 'create-dataset'
+                sh "chmod +x -R ${env.WORKSPACE}"
+                sh './train.sh'
+            }
+        }
+
+      stage('archiveArtifacts') {
+         steps {
+            echo "Saving artifacts..."
+            archiveArtifacts 'model.keras'
+         }
+      }
+    }
+}

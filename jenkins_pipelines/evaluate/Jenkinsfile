@@ -1,0 +1,32 @@
+pipeline {
+    agent { dockerfile true }
+    options {
+        copyArtifactPermission('*');
+    }
+    triggers {
+        upstream(upstreamProjects: "training/train", threshold: hudson.model.Result.SUCCESS)
+    }
+
+    stages {
+        stage('evaluateDataset') {
+            steps {
+                copyArtifacts filter: '*', fingerprintArtifacts: true, projectName: 'create-dataset'
+                copyArtifacts filter: '*', fingerprintArtifacts: true, projectName: 'training/train'
+                copyArtifacts filter: '*', fingerprintArtifacts: true, projectName: 'evaluation/evaluate', optional: true
+                sh "chmod +x -R ${env.WORKSPACE}"
+                sh './evaluate.sh'
+            }
+        }
+
+      stage('archiveArtifacts') {
+         steps {
+            echo "Saving artifacts..."
+            archiveArtifacts 'metrics.jpg'
+            archiveArtifacts 'metrics.json'
+            archiveArtifacts 'predictions.txt'
+            archiveArtifacts 'predictions_two_digits.txt'
+
+         }
+      }
+    }
+}

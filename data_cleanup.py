@@ -1,20 +1,20 @@
-### 1. Pobieranie zbioru danych
+### 1. Download the dataset
 import zipfile
 with zipfile.ZipFile("personal-key-indicators-of-heart-disease.zip", 'r') as zip_ref:
     zip_ref.extractall("dataset_extracted")
 import pandas as pd
-# W pobranym zbiorze danych jest kilka podzbiorów więc celowo otwieram ten z NaN, żeby manualnie go oczyścić dla praktyki
+# Opening the dataset containing NaNs and manually cleaning it up for practice
 df = pd.read_csv("dataset_extracted/2022/heart_2022_with_nans.csv")
-## Przeglądanie nieoczyszczonego datasetu
+## View the uncleaned dataset
 df.info()
 df.head()
 df.describe()
 df["HadHeartAttack"].value_counts().plot(kind="pie")
 df["HadHeartAttack"].value_counts()
 
-## 2. Podział na podzbiory (train / dev / test - 8:1:1)) i oversampling
+## 2. Dividing the dataset (train / dev / test - 8:1:1)) and oversampling
 from sklearn.model_selection import train_test_split
-#Funkcji z sklearn musimy użyć dwukrotnie, bo dzieli tylko na dwa podzbiory
+# Use train_test_split twice to divide into 3 datasets
 train, test_and_valid = train_test_split(df, test_size=0.2) #0.8 train, 0.2 test&valid
 
 test, valid = train_test_split(test_and_valid, test_size=0.5) #0.1 test, 0.1 valid
@@ -34,7 +34,7 @@ valid["HadHeartAttack"].value_counts().plot(kind="pie")
 df["SmokerStatus"].value_counts().plot(kind="pie")
 df["ECigaretteUsage"].value_counts().plot(kind="pie")
 df["CovidPos"].value_counts().plot(kind="pie")
-## Normalizacja część 1 - zamiana na kolumny liczbowe i kategoryczne
+## 3.1 normalization pt 1 : converting text to numerical and categorical data
 df["Sex"].unique()
 df["GeneralHealth"].unique()
 health_map = {
@@ -50,12 +50,12 @@ for col in df:
 from collections import defaultdict
 def normalize_dataset(dataset):
     dataset["GeneralHealth"] = dataset["GeneralHealth"].map(defaultdict(lambda: float('NaN'), health_map), na_action='ignore')
-    dataset["Sex"] = dataset["Sex"].map({"Female":0,"Male":1}).astype(float) #Zamiana z kolumn tekstowych na numeryczne
+    dataset["Sex"] = dataset["Sex"].map({"Female":0,"Male":1}).astype(float) # Convert text to numerical data
     dataset.rename(columns ={"Sex":"Male"},inplace=True)
     dataset["State"] = dataset["State"].astype('category')
     dataset["PhysicalHealthDays"].astype(float)
     dataset["MentalHealthDays"].astype(float)
-    dataset["LastCheckupTime"] = dataset["LastCheckupTime"].fillna("Unknown").astype('category') # Potem korzystam z fillna-->median ale nie działa to na kolumnach kategorycznych więc wykonuję to przed konwersją
+    dataset["LastCheckupTime"] = dataset["LastCheckupTime"].fillna("Unknown").astype('category') # I use fillna --> median later, but that doesn't work on categorical columns, so I'm doing this before converting.
     dataset["PhysicalActivities"]= dataset["PhysicalActivities"].map({"No":0,"Yes":1})
     dataset["SleepHours"].astype(float)
     dataset["RemovedTeeth"] = dataset["RemovedTeeth"].map(defaultdict(lambda: float('NaN'), {"None of them":0,"1 to 5":1, "6 or more, but not all":2, "All":3}), na_action='ignore')
@@ -113,7 +113,7 @@ g.legend.set_title("Had heart attack")
 valid.groupby('SmokerStatus', as_index=False)['HadHeartAttack'].mean()
 valid.groupby('GeneralHealth', as_index=False)['HadHeartAttack'].mean()
 valid.pivot_table('HadHeartAttack',index='GeneralHealth', columns='SmokerStatus')
-## Normalizacja część 2 - Skalowanie kolumn numerycznych do 0-1
+## 3.2 Normalization pt 2 - scaling numerical data to the range 0-1
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 def scale_float_columns(dataset):
@@ -124,7 +124,7 @@ scale_float_columns(test)
 scale_float_columns(train)
 scale_float_columns(valid)
 test.head()
-## 5. Czyszczenie brakujących pól
+## 4. Cleaning up missing values
 print(df.shape[0])
 print(df.shape[0] - df.dropna().shape[0])
 test.head()
